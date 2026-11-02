@@ -1,0 +1,952 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carnivian — A Garden of Memories</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap');
+
+:root {
+  --pink:#d88eaa;
+  --deep:#92516f;
+  --soft:#fff1f5;
+  --cream:#fffaf7;
+  --rose:#f3d4e0;
+  --text:#775366;
+}
+
+* {box-sizing:border-box}
+
+body {
+  margin:0;
+  background:var(--soft);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  overflow-x:hidden;
+}
+
+button {font-family:inherit;cursor:pointer}
+
+#petal-bg {
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:0;
+}
+
+.floating {
+  position:absolute;
+  opacity:.3;
+  animation:float 7s ease-in-out infinite;
+}
+
+@keyframes float {
+  50% {transform:translateY(-24px) rotate(20deg)}
+}
+
+#app {
+  max-width:760px;
+  padding:20px;
+  margin:auto;
+  position:relative;
+  z-index:1;
+}
+
+.screen {display:none}
+.screen.active {display:block;animation:fade .5s ease}
+
+@keyframes fade {
+  from {opacity:0;transform:translateY(12px)}
+  to {opacity:1;transform:translateY(0)}
+}
+
+h1,h2,h3 {
+  font-family:'Playfair Display',serif;
+}
+
+button:active {transform:scale(.97)}
+
+.hero {
+  min-height:92vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+
+.eyebrow {
+  font-size:10px;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  color:#b77d97;
+}
+
+.hero h1 {
+  font-size:clamp(55px,12vw,88px);
+  line-height:.98;
+  color:#c77998;
+  margin:20px 0;
+}
+
+.hero h1 em {color:#8e6077}
+
+.hero p {
+  font-size:13px;
+  max-width:350px;
+  line-height:2;
+  color:#98768a;
+}
+
+.big-flower {
+  font-size:75px;
+  margin:15px;
+  animation:float 4s infinite;
+}
+
+.btn {
+  background:var(--pink);
+  color:white;
+  border:0;
+  border-radius:30px;
+  padding:14px 25px;
+  font-size:11px;
+  letter-spacing:1.5px;
+  transition:.2s;
+}
+
+.btn:hover {background:#b96f90}
+
+.btn-outline {
+  background:white;
+  border:1px solid var(--rose);
+  color:var(--deep);
+}
+
+.topbar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 0 25px;
+}
+
+.logo {
+  font-family:'Playfair Display',serif;
+  font-style:italic;
+  font-size:23px;
+  color:var(--deep);
+}
+
+.small {
+  font-size:10px;
+  letter-spacing:2px;
+  color:#b77d97;
+}
+
+.section-title {
+  text-align:center;
+  margin:38px 0 24px;
+}
+
+.section-title h2 {
+  font-size:36px;
+  margin:9px 0;
+  color:var(--deep);
+}
+
+.section-title p {
+  font-size:12px;
+  color:#a78394;
+}
+
+.card {
+  background:rgba(255,255,255,.88);
+  border:1px solid #f1d5e0;
+  border-radius:22px;
+  padding:24px;
+  margin-bottom:16px;
+  box-shadow:0 8px 25px #bc79900d;
+}
+
+.center {text-align:center}
+
+.menu-grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.menu-item {
+  background:white;
+  border:1px solid var(--rose);
+  border-radius:20px;
+  padding:24px 10px;
+  color:var(--text);
+  transition:.25s;
+}
+
+.menu-item:hover {
+  transform:translateY(-5px);
+  background:#fff9fb;
+}
+
+.menu-item .emoji {font-size:36px}
+.menu-item h3 {font-size:19px;margin:10px 0 5px}
+.menu-item p {font-size:10px;color:#aa8195;margin:0}
+
+.back {
+  border:0;
+  background:transparent;
+  color:#a76a86;
+  padding:10px 0;
+  font-size:12px;
+}
+
+.game-title {
+  text-align:center;
+  font-size:35px;
+  margin:12px 0;
+  color:var(--deep);
+}
+
+.game-desc {
+  text-align:center;
+  color:#a78394;
+  font-size:12px;
+  margin-bottom:25px;
+}
+
+.game-info {
+  text-align:center;
+  font-size:12px;
+  margin:15px;
+}
+
+.memory-grid {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+.memory-card {
+  aspect-ratio:1;
+  background:#f7dce7;
+  border:1px solid #edc3d4;
+  border-radius:14px;
+  font-size:27px;
+  color:#a86b88;
+  transition:.2s;
+}
+
+.memory-card.open,.memory-card.matched {
+  background:white;
+}
+
+.memory-card.matched {opacity:.5}
+
+.result {
+  text-align:center;
+  min-height:35px;
+  font-size:13px;
+  margin:20px 0;
+}
+
+.progress {
+  background:#f5dce6;
+  height:7px;
+  border-radius:20px;
+  overflow:hidden;
+  margin:15px 0;
+}
+
+.progress div {
+  background:#d88eaa;
+  height:100%;
+  width:0%;
+  transition:.3s;
+}
+
+#scrambleWord {
+  text-align:center;
+  font-family:'Playfair Display',serif;
+  font-size:38px;
+  letter-spacing:8px;
+  color:#c77998;
+  margin:30px 0;
+}
+
+.answer {
+  display:block;
+  width:100%;
+  border:1px solid #edc6d6;
+  padding:15px;
+  background:white;
+  border-radius:12px;
+  outline:none;
+  text-align:center;
+  color:var(--text);
+  font-size:16px;
+}
+
+.answer:focus {border-color:var(--pink)}
+
+.flower-choices {
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin:28px 0;
+}
+
+.flower-choice {
+  width:70px;
+  height:78px;
+  border-radius:18px;
+  border:1px solid var(--rose);
+  background:#fff8fb;
+  font-size:35px;
+  transition:.2s;
+}
+
+.flower-choice:hover {
+  background:#f9e3ec;
+  transform:translateY(-5px);
+}
+
+#luckyMessage {
+  min-height:100px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-family:'Playfair Display',serif;
+  font-size:21px;
+  font-style:italic;
+  line-height:1.6;
+  padding:15px;
+}
+
+.spotify {
+  border-radius:16px;
+  overflow:hidden;
+  margin-top:20px;
+}
+
+.spotify iframe {
+  width:100%;
+  height:352px;
+  border:0;
+  display:block;
+}
+
+.letter {
+  background:#fffdfb;
+  border:1px solid #f0d3df;
+  border-radius:25px;
+  padding:35px 24px;
+  text-align:center;
+}
+
+.letter h2 {
+  font-size:38px;
+  color:#bd7895;
+}
+
+.letter p {
+  font-size:13px;
+  line-height:2;
+  color:#88677a;
+}
+
+.footer {
+  text-align:center;
+  font-size:10px;
+  letter-spacing:2px;
+  color:#b4879b;
+  padding:35px 0;
+}
+
+@media(max-width:400px) {
+  #app {padding:15px}
+  .card {padding:18px}
+  .memory-grid {gap:7px}
+}
+</style>
+</head>
+
+<body>
+
+<div id="petal-bg"></div>
+
+<div id="app">
+
+<!-- OPENING -->
+<section class="screen active" id="welcome">
+  <div class="hero">
+    <div class="eyebrow">A little celebration of us</div>
+    <div class="big-flower">🌷</div>
+
+    <h1>Carnivian<br><em>in Bloom.</em></h1>
+
+    <p>
+      Six months of laughter, stories, chaos,
+      and little moments worth remembering.
+      Welcome to our little garden.
+    </p>
+
+    <button class="btn" onclick="go('home')">
+      ENTER OUR GARDEN ♡
+    </button>
+
+    <p class="small">SIX MONTHS · ENDLESS MEMORIES</p>
+  </div>
+</section>
+
+<!-- HOMEPAGE -->
+<section class="screen" id="home">
+
+  <div class="topbar">
+    <div class="logo">carnivian ♡</div>
+    <div class="small">EST. 6 MONTHS</div>
+  </div>
+
+  <div class="section-title">
+    <div style="font-size:42px">🌸</div>
+    <div class="eyebrow">Welcome to our little world</div>
+    <h2>A Garden of Memories</h2>
+    <p>Made with love, for everyone in Carnivian.</p>
+  </div>
+
+  <div class="card center">
+    <div class="eyebrow">A little reminder</div>
+    <h2 style="font-size:27px">You belong here.</h2>
+    <p style="font-size:12px;line-height:1.9;color:#a78394">
+      Somewhere between random conversations,
+      endless laughter, and unforgettable moments,
+      this little circle became something special.
+    </p>
+    <div style="font-size:25px">୨ৎ ♡ ୨ৎ</div>
+  </div>
+
+  <div class="section-title">
+    <div class="eyebrow">Three little activities</div>
+    <h2>Let's Play!</h2>
+    <p>Take a break and enjoy our little games.</p>
+  </div>
+
+  <div class="menu-grid">
+
+    <button class="menu-item" onclick="startMemory()">
+      <div class="emoji">🃏</div>
+      <h3>Petal Memory</h3>
+      <p>Find matching flowers.</p>
+    </button>
+
+    <button class="menu-item" onclick="startScramble()">
+      <div class="emoji">🧩</div>
+      <h3>Word Scramble</h3>
+      <p>Unscramble the letters.</p>
+    </button>
+
+    <button class="menu-item" onclick="startLucky()" style="grid-column:span 2">
+      <div class="emoji">🌷</div>
+      <h3>Lucky Flower</h3>
+      <p>Choose a flower and discover your message.</p>
+    </button>
+
+  </div>
+
+  <div class="section-title">
+    <div class="eyebrow">A soundtrack for us</div>
+    <h2>Our Playlist</h2>
+    <p>Press play and let the memories flow.</p>
+  </div>
+
+  <div class="card">
+    <div class="center">
+      <div style="font-size:32px">🎧</div>
+      <h3 style="font-family:'Playfair Display';font-size:23px">
+        Songs for Carnivian
+      </h3>
+      <p style="font-size:11px;color:#a78394">
+        A little soundtrack for our six months together.
+      </p>
+    </div>
+
+    <div class="spotify">
+      <iframe
+        src="https://open.spotify.com/embed/album/1rpCHilZQkw84A3Y9czvMO?utm_source=generator"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy">
+      </iframe>
+    </div>
+  </div>
+
+  <div class="section-title">
+    <div class="eyebrow">Something from the heart</div>
+    <h2>A Letter for You</h2>
+    <p>A few words dedicated to our little circle.</p>
+    <button class="btn" onclick="go('letter')">
+      READ OUR LETTER ♡
+    </button>
+  </div>
+
+  <div class="footer">CARNIVIAN · FOREVER IN BLOOM</div>
+</section>
+
+<!-- PETAL MEMORY -->
+<section class="screen" id="memory">
+
+  <button class="back" onclick="go('home')">← Back to garden</button>
+
+  <div class="game-title">Petal Memory</div>
+  <div class="game-desc">Find all six matching pairs of flowers.</div>
+
+  <div class="game-info">
+    Moves: <span id="moves">0</span>
+    &nbsp;·&nbsp;
+    Matches: <span id="matches">0</span>/6
+  </div>
+
+  <div class="memory-grid" id="memoryGrid"></div>
+
+  <div class="result" id="memoryResult"></div>
+
+  <div class="center">
+    <button class="btn btn-outline" onclick="startMemory()">
+      PLAY AGAIN
+    </button>
+  </div>
+
+</section>
+
+<!-- WORD SCRAMBLE -->
+<section class="screen" id="scramble">
+
+  <button class="back" onclick="go('home')">← Back to garden</button>
+
+  <div class="game-title">Word Scramble</div>
+  <div class="game-desc">Put the letters in their right order.</div>
+
+  <div class="card">
+
+    <div class="game-info">
+      Word <span id="wordNumber">1</span>/5
+    </div>
+
+    <div class="progress">
+      <div id="wordProgress"></div>
+    </div>
+
+    <div id="scrambleWord">FLOWER</div>
+
+    <input
+      class="answer"
+      id="wordAnswer"
+      placeholder="Type your answer..."
+      autocomplete="off"
+    >
+
+    <div class="center" style="margin-top:20px">
+      <button class="btn" id="submitWord" onclick="checkWord()">
+        SUBMIT ANSWER
+      </button>
+    </div>
+
+    <div class="result" id="wordFeedback"></div>
+
+    <div class="center">
+      <button
+        class="btn btn-outline"
+        id="wordNext"
+        onclick="nextWord()"
+        style="display:none">
+        NEXT WORD
+      </button>
+    </div>
+
+    <div class="game-info">
+      Score: <span id="wordScore">0</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- LUCKY FLOWER -->
+<section class="screen" id="lucky">
+
+  <button class="back" onclick="go('home')">← Back to garden</button>
+
+  <div class="game-title">Lucky Flower</div>
+  <div class="game-desc">
+    Every flower has a little message waiting for you.
+  </div>
+
+  <div class="card center">
+
+    <div style="font-size:42px">୨ৎ</div>
+
+    <h3 style="font-size:24px">Choose your flower.</h3>
+
+    <div class="flower-choices">
+
+      <button class="flower-choice" onclick="pickFlower(0)">🌷</button>
+      <button class="flower-choice" onclick="pickFlower(1)">🌹</button>
+      <button class="flower-choice" onclick="pickFlower(2)">🌸</button>
+      <button class="flower-choice" onclick="pickFlower(3)">🌼</button>
+      <button class="flower-choice" onclick="pickFlower(4)">🪻</button>
+
+    </div>
+
+    <div class="eyebrow">Your little message</div>
+
+    <div id="luckyMessage">
+      Pick one flower to reveal your surprise. ♡
+    </div>
+
+    <button class="btn btn-outline" onclick="resetLucky()">
+      PICK AGAIN
+    </button>
+
+  </div>
+</section>
+
+<!-- LETTER -->
+<section class="screen" id="letter">
+
+  <button class="back" onclick="go('home')">← Back to garden</button>
+
+  <div class="letter">
+
+    <div style="font-size:48px">💐</div>
+
+    <div class="eyebrow">A letter from the heart</div>
+
+    <h2>Dear Carnivian,</h2>
+
+    <p>
+      I don't think words could ever fully explain
+      how happy I am to be a part of this pretty dorm.
+      Somewhere between all the conversations,
+      random chaos, silly moments, and memories,
+      Carnivian became a place that means so much to me.
+    </p>
+
+    <p>
+      I'm genuinely happy that I get to be here,
+      to know all of you, and to share even
+      the smallest pieces of life together.
+    </p>
+
+    <p>
+      Six months already that carnivian grows,
+      and i'm grateful for every little thing
+      that has made me feel comfortable here.
+    </p>
+
+    <p>
+      Here's to more laughter, more memories,
+      more ridiculous conversations, and countless
+      chapters waiting to be written.
+    </p>
+
+    <h2 style="font-size:32px">Happy 6 Months!</h2>
+
+    <p>
+      May this endless dorm keep growing,
+      blooming, and finding its way through time.
+      No matter where life takes us,
+      I hope we always have a reason to look back
+      and smile at what we've built together.
+    </p>
+
+    <p>
+      Long live Carnivian.
+    </p>
+
+    <p style="font-family:'Playfair Display';font-size:22px;font-style:italic">
+      I'm so happy to be a part of you.
+      I love you all so, so much. ♡
+    </p>
+
+    <div style="font-size:32px;margin:20px">
+      🌷 🩷 🌸
+    </div>
+
+    <div class="eyebrow">Forever in bloom · 2026</div>
+
+  </div>
+
+  <div class="center" style="padding:35px 0">
+    <h2 style="font-style:italic;font-size:30px">Carnivian, always.</h2>
+    <button class="btn" onclick="go('home')">BACK TO OUR GARDEN</button>
+  </div>
+
+</section>
+
+</div>
+
+<script>
+
+// FLOATING DECORATIONS
+const bg=document.getElementById('petal-bg');
+const decor=['✿','❀','♡','✾','🌸'];
+
+for(let i=0;i<25;i++){
+  const el=document.createElement('span');
+  el.className='floating';
+  el.textContent=decor[i%decor.length];
+  el.style.left=Math.random()*100+'%';
+  el.style.top=Math.random()*100+'%';
+  el.style.fontSize=(15+Math.random()*15)+'px';
+  el.style.animationDelay=Math.random()*5+'s';
+  bg.appendChild(el);
+}
+
+// NAVIGATION
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>{
+    s.classList.remove('active');
+  });
+
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// GAME 1: PETAL MEMORY
+const flowers=['🌷','🌸','🌹','🌼','🪻','💮'];
+
+let firstCard=null;
+let locked=false;
+let moveCount=0;
+let matchCount=0;
+
+function startMemory(){
+  go('memory');
+
+  firstCard=null;
+  locked=false;
+  moveCount=0;
+  matchCount=0;
+
+  document.getElementById('moves').textContent='0';
+  document.getElementById('matches').textContent='0';
+  document.getElementById('memoryResult').textContent='';
+
+  let deck=[...flowers,...flowers];
+
+  for(let i=deck.length-1;i>0;i--){
+    let j=Math.floor(Math.random()*(i+1));
+    [deck[i],deck[j]]=[deck[j],deck[i]];
+  }
+
+  const grid=document.getElementById('memoryGrid');
+  grid.innerHTML='';
+
+  deck.forEach(emoji=>{
+    const button=document.createElement('button');
+    button.className='memory-card';
+    button.textContent='♡';
+
+    button.onclick=()=>flip(button,emoji);
+
+    grid.appendChild(button);
+  });
+}
+
+function flip(button,emoji){
+  if(locked || button.classList.contains('open') ||
+     button.classList.contains('matched'))return;
+
+  button.textContent=emoji;
+  button.classList.add('open');
+
+  if(!firstCard){
+    firstCard={button,emoji};
+    return;
+  }
+
+  moveCount++;
+  document.getElementById('moves').textContent=moveCount;
+
+  if(firstCard.emoji===emoji){
+    firstCard.button.classList.add('matched');
+    button.classList.add('matched');
+    firstCard=null;
+    matchCount++;
+
+    document.getElementById('matches').textContent=matchCount;
+
+    if(matchCount===6){
+      document.getElementById('memoryResult').textContent=
+        'Beautiful! You found every little flower. 🌸';
+    }
+
+  }else{
+    locked=true;
+    const previous=firstCard;
+    firstCard=null;
+
+    setTimeout(()=>{
+      previous.button.textContent='♡';
+      button.textContent='♡';
+
+      previous.button.classList.remove('open');
+      button.classList.remove('open');
+
+      locked=false;
+    },800);
+  }
+}
+
+// GAME 2: WORD SCRAMBLE
+const words=['CARNIVIAN','FLOWER','FRIENDS','MEMORIES','FOREVER'];
+
+let wordIndex=0;
+let wordScore=0;
+let answered=false;
+let shuffledWords=[];
+
+function shuffle(word){
+  let arr=word.split('');
+
+  for(let i=arr.length-1;i>0;i--){
+    let j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+
+  if(arr.join('')===word)arr.reverse();
+
+  return arr.join('');
+}
+
+function startScramble(){
+  go('scramble');
+
+  wordIndex=0;
+  wordScore=0;
+  shuffledWords=words.map(w=>shuffle(w));
+
+  document.getElementById('wordAnswer').style.display='block';
+  document.getElementById('submitWord').style.display='inline-block';
+
+  showWord();
+}
+
+function showWord(){
+  answered=false;
+
+  document.getElementById('wordNumber').textContent=wordIndex+1;
+  document.getElementById('wordProgress').style.width=
+    ((wordIndex+1)/5*100)+'%';
+
+  document.getElementById('scrambleWord').textContent=
+    shuffledWords[wordIndex];
+
+  document.getElementById('wordAnswer').value='';
+  document.getElementById('wordFeedback').textContent='';
+  document.getElementById('wordScore').textContent=wordScore;
+
+  document.getElementById('wordNext').style.display='none';
+  document.getElementById('submitWord').style.display='inline-block';
+}
+
+function checkWord(){
+  if(answered)return;
+
+  const input=document.getElementById('wordAnswer');
+  const answer=input.value.trim().toUpperCase();
+
+  if(!answer){
+    document.getElementById('wordFeedback').textContent=
+      'Write your answer first!';
+    return;
+  }
+
+  answered=true;
+
+  if(answer===words[wordIndex]){
+    wordScore++;
+    document.getElementById('wordFeedback').textContent=
+      'Correct! You got it. ♡';
+  }else{
+    document.getElementById('wordFeedback').textContent=
+      'Not quite! The answer is '+words[wordIndex]+'.';
+  }
+
+  document.getElementById('wordScore').textContent=wordScore;
+  document.getElementById('submitWord').style.display='none';
+  document.getElementById('wordNext').style.display='inline-block';
+
+  document.getElementById('wordNext').textContent=
+    wordIndex===4?'SEE RESULTS':'NEXT WORD';
+}
+
+function nextWord(){
+  wordIndex++;
+
+  if(wordIndex>=5){
+    document.getElementById('scrambleWord').textContent='♡';
+    document.getElementById('wordAnswer').style.display='none';
+    document.getElementById('wordNext').style.display='none';
+
+    document.getElementById('wordFeedback').textContent=
+      `You got ${wordScore}/5 correct. Well played! 🌷`;
+
+    return;
+  }
+
+  showWord();
+}
+
+document.getElementById('wordAnswer').addEventListener('keydown',e=>{
+  if(e.key==='Enter')checkWord();
+});
+
+// GAME 3: LUCKY FLOWER
+const messages=[
+  'You deserve all the beautiful things life has to offer. 🌷',
+  'Some people make ordinary days feel extraordinary. ♡',
+  'May your days always be filled with laughter.',
+  'Never underestimate the magic of being together.',
+  'You are a little part of what makes this place special.',
+  'Here is your reminder: you are appreciated. 🌸',
+  'May Carnivian keep blooming for a very long time.',
+  'The best memories are often made in the smallest moments.',
+  'I hope life gives you a thousand reasons to smile.',
+  'Some connections are worth keeping forever. 💗'
+];
+
+let previousMessage=-1;
+
+function startLucky(){
+  go('lucky');
+  resetLucky();
+}
+
+function pickFlower(index){
+  let random;
+
+  do {
+    random=Math.floor(Math.random()*messages.length);
+  } while(random===previousMessage && messages.length>1);
+
+  previousMessage=random;
+
+  document.getElementById('luckyMessage').textContent=
+    messages[random];
+}
+
+function resetLucky(){
+  document.getElementById('luckyMessage').textContent=
+    'Pick one flower to reveal your surprise . ♡';
+}
+
+</script>
+
+</body>
+</html>
